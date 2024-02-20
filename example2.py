@@ -13,7 +13,8 @@ mm = 1*10**(-3)*m
 # Materials
 
 E = 2*10**11*Pa
-A = 1200*mm**2
+A1 = 3000*mm**2
+A2 = 2000*mm**2
 
 # Remove existing model
 ops.wipe()
@@ -24,13 +25,14 @@ ops.model('basic', '-ndm', 2, '-ndf', 2)
 # Create nodes
 
 ops.node(1, 0.0, 0.0)
-ops.node(2, 4.0, 0.0)
-ops.node(3, 7.0, 0.0)
-ops.node(4, 4.0, 4.0)
+ops.node(2, 8.0, 0.0)
+ops.node(3, 16.0, 0.0)
+ops.node(4, 8.0, 6.0)
 
 # Set boundary conditions
 
 ops.fix(1, 1, 1)
+ops.fix(2, 0, 1)
 ops.fix(3, 0, 1)
 
 # Define materials
@@ -39,11 +41,11 @@ ops.uniaxialMaterial('Elastic', 1, E)
 
 # Define elements
 
-ops.element('Truss', 1, 1, 2, A, 1)
-ops.element('Truss', 2, 2, 3, A, 1)
-ops.element('Truss', 3, 1, 4, A, 1)
-ops.element('Truss', 4, 2, 4, A, 1)
-ops.element('Truss', 5, 3, 4, A, 1)
+ops.element('Truss', 1, 1, 2, A1, 1)
+ops.element('Truss', 2, 2, 3, A1, 1)
+ops.element('Truss', 3, 1, 4, A1, 1)
+ops.element('Truss', 4, 2, 4, A2, 1)
+ops.element('Truss', 5, 3, 4, A1, 1)
 
 # Create TimeSeries
 
@@ -54,14 +56,15 @@ ops.timeSeries('Linear', 1)
 ops.pattern('Plain', 1, 1)
 
 # Create the nodal load - command: load nodeID xForce yForce
-ops.load(2, 0.0, -84.0*KN)
-ops.load(4, -35.0*KN, 0.0)
+
+ops.load(4, 60.0*KN, -100.0*KN)
 
 # Recorder
 
 ops.recorder('Node', '-file', "NodeDisp.out", '-time', '-node', 4, '-dof', 1,2,'disp')
 ops.recorder('Node', '-file', "Reaction.out", '-time', '-node', 1,2,3, '-dof', 1,2,'reaction')
 ops.recorder('Element', '-file', "Elements.out",'-time','-ele', 1,2,3,4, 'forces')
+
 
 # ------------------------------
 # Start of analysis generation
@@ -87,6 +90,7 @@ ops.analysis("Static")
 
 # perform the analysis
 ops.analyze(1)
+
 
 # Graph
 
